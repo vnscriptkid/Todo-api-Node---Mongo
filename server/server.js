@@ -22,12 +22,18 @@ app.post('/todos', (req, res) => {
 });
 
 app.get('/todos', (req, res) => {
-
+	Todo.find().then((docs) => {
+		res.send({docs});
+	}, (err) => {
+		res.status(400).send(err);
+	});
 });
 
-app.listen(3000, () => {
-	console.log('Started on port 3000');
+app.listen(30001, () => {
+	console.log('Started on port 30001');
 });
+
+module.exports = { app }
 
 
 
