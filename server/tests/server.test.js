@@ -1,4 +1,8 @@
-const expect = require('expect');
+var expect = require('expect')
+// console.log(expect('abc'));
+var createSpy = expect.createSpy
+var spyOn = expect.spyOn
+var isSpy = expect.isSpy
 const request = require('supertest');
 const {ObjectID} = require('mongodb');
 
@@ -12,7 +16,9 @@ const todos = [
 	},
 	{
 		_id: new ObjectID(),
-		text: 'Second test todo'
+		text: 'Second test todo',
+		completed: false,
+		completedAt: 123
 	}
 ]
 
@@ -117,7 +123,7 @@ describe('DELETE /todos/:id', () => {
 					return done(err);
 				}
 				Todo.findById(hexId).then((todo) => {					
-					// expect(todo).toNotExist();
+					expect(todo).toBeFalsy();
 					done();					
 				}).catch((e) => done(e));
 			})
@@ -134,6 +140,44 @@ describe('DELETE /todos/:id', () => {
 		request(app)
 			.delete('/todos/123')
 			.expect(404)
+			.end(done);		
+	})
+})
+
+describe('PATCH /todos/:id', () => {
+	it('should update the todo', (done) => {
+		var newDoc = {
+			text: 'This is already updated',
+			completed: true
+		};
+		request(app)		
+			.patch(`/todos/${todos[1]._id.toHexString()}`)
+			.send(newDoc)
+			.expect(200)
+			.expect((res) => {				
+				expect(res.body.todo.text).toBe(newDoc.text);
+				expect(res.body.todo.completed).toBe(newDoc.completed);
+				expect(res.body.todo.completedAt).not.toBeFalsy();
+			})
+			.end(done);
+	});
+
+	it('should clear completedAt when todo is not completed', (done) => {
+		var newDoc = {
+			text : 'This is already updated',
+			completed: false
+		};
+		request(app)
+			.patch(`/todos/${todos[1]._id.toHexString()}`)
+			.send(newDoc)
+			.expect(200)
+			.expect((res) => {
+				expect(res.body.todo.completedAt).toBeFalsy();
+				expect(res.body.todo.text).toBe(newDoc.text);
+				expect(res.body.todo.completed).toBeFalsy();
+			})
 			.end(done);
 	})
+
+// 	it('should ')
 })
