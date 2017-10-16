@@ -1,4 +1,15 @@
-require('./config/config.js');
+// require('./config/config.js');
+// Setup enviroment
+var env = process.env.NODE_ENV || 'development';
+if(env === 'development'){
+	process.env.PORT = 30001;
+	process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoApp';
+}else if(env === 'test'){	
+	process.env.PORT = 30001;
+	process.env.MONGODB_URI = 'mongodb://localhost:27017/TodoAppTest';
+}
+//***************************************************************
+
 const _ = require('lodash');
 var express = require('express');
 var bodyParser = require('body-parser');
